@@ -26,3 +26,6 @@ jobs:
 
     - name: Publish Project
       run: dotnet publish -c Release -o publish
+
+    - name: Build Docker Image
+      run: docker build -t onlinebookstore .
