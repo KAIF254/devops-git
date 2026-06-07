@@ -1,0 +1,79 @@
+@* ============================================================
+   FILE: Views/Books/Edit.cshtml — Uses _AdminLayout
+   ============================================================ *@
+
+@model OnlineBookStore.Models.Book
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Book";
+    var categories = ViewBag.Categories as List<OnlineBookStore.Models.Category> ?? new();
+}
+
+<div style="max-width:720px">
+    <div class="admin-form-card">
+        <div class="admin-form-header"
+             style="background:linear-gradient(90deg,#b8932a,#c9a84c);color:white;border-radius:12px 12px 0 0">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-pencil me-2"></i>Edit Book — @Model.Title</h5>
+        </div>
+        <div class="admin-form-body">
+            <form method="post" asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Book Title *</label>
+                        <input asp-for="Title" class="form-control" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Author *</label>
+                        <input asp-for="Author" class="form-control" required />
+                        <span asp-validation-for="Author" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Category *</label>
+                        <select asp-for="CategoryId" class="form-select" required>
+                            <option value="">— Select Category —</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id" selected="@(cat.Id == Model.CategoryId)">
+                                    @cat.Name
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Price ($) *</label>
+                        <input asp-for="Price" type="number" step="0.01" min="0"
+                               class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Stock Quantity *</label>
+                        <input asp-for="Stock" type="number" min="0"
+                               class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Release Date</label>
+                        <input asp-for="ReleaseDate" type="date" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Cover Image URL <span class="text-muted">(optional)</span></label>
+                        <input asp-for="ImageUrl" type="text" class="form-control" />
+                    </div>
+                </div>
+                <hr class="my-4" />
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-admin-gold btn-lg px-5">
+                        <i class="bi bi-floppy me-2"></i>Update Book
+                    </button>
+                    <a asp-controller="Home" asp-action="AdminDashboard"
+                       class="btn btn-outline-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

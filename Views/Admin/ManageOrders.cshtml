@@ -1,0 +1,90 @@
+@* ============================================================
+   FILE: Views/Admin/ManageOrders.cshtml
+   PURPOSE: Admin order management — ALL orders with inline
+            status update. Uses _AdminLayout.
+   ============================================================ *@
+
+@model List<OnlineBookStore.Models.Order>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Orders";
+    var users    = ViewBag.Users    as List<OnlineBookStore.Models.User>      ?? new();
+    var allItems = ViewBag.AllItems as List<OnlineBookStore.Models.OrderItem> ?? new();
+    var allBooks = ViewBag.AllBooks as List<OnlineBookStore.Models.Book>      ?? new();
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h5 class="fw-bold mb-1">All Orders <span class="badge rounded-pill" style="background:#1a3c5f;font-size:0.75rem">@Model.Count</span></h5>
+        <p class="text-muted mb-0" style="font-size:0.85rem">Update order status to manage fulfilment</p>
+    </div>
+</div>
+
+<div class="admin-table-card">
+    <div class="table-responsive">
+        <table class="table admin-table mb-0">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Books</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">No orders yet</td></tr>
+                }
+                @foreach (var order in Model)
+                {
+                    var user  = users.FirstOrDefault(u => u.Id == order.UserId);
+                    var items = allItems.Where(i => i.OrderId == order.Id).ToList();
+                    var badgeCss = order.Status switch {
+                        "Shipped" => "status-shipped", "Delivered" => "status-delivered",
+                        "Cancelled" => "status-cancelled", _ => "status-pending"
+                    };
+                    <tr>
+                        <td class="fw-bold">#@order.Id</td>
+                        <td>
+                            <div class="fw-semibold" style="font-size:0.87rem">@(user?.Name ?? "User #" + order.UserId)</div>
+                            <div class="text-muted" style="font-size:0.76rem">@user?.Email</div>
+                        </td>
+                        <td style="max-width:180px">
+                            @foreach (var item in items)
+                            {
+                                var book = allBooks.FirstOrDefault(b => b.Id == item.BookId);
+                                <div style="font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px">
+                                    📖 @(book?.Title ?? "?") ×@item.Quantity
+                                </div>
+                            }
+                        </td>
+                        <td style="font-size:0.83rem">@order.OrderDate.ToString("dd MMM yy")</td>
+                        <td class="fw-bold text-success">$@order.TotalAmount.ToString("0.00")</td>
+                        <td><span class="status-badge @badgeCss">@order.Status</span></td>
+                        <td>
+                            <form asp-controller="Orders" asp-action="UpdateStatus"
+                                  method="post" class="d-flex gap-1">
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <select name="status" class="form-select form-select-sm"
+                                        style="width:115px;border-radius:7px;font-size:0.8rem">
+                                    <option value="Pending"   selected="@(order.Status=="Pending")">Pending</option>
+                                    <option value="Shipped"   selected="@(order.Status=="Shipped")">Shipped</option>
+                                    <option value="Delivered" selected="@(order.Status=="Delivered")">Delivered</option>
+                                    <option value="Cancelled" selected="@(order.Status=="Cancelled")">Cancelled</option>
+                                </select>
+                                <button type="submit" class="btn btn-admin-primary btn-sm"
+                                        title="Update">
+                                    <i class="bi bi-check2"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

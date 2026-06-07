@@ -1,0 +1,95 @@
+@* ============================================================
+   FILE: Views/Cart/Checkout.cshtml
+   PURPOSE: Order confirmation page — shows full summary of the
+            cart before the user clicks "Confirm Order".
+   ============================================================ *@
+
+@model List<OnlineBookStore.Models.CartItem>
+@{
+    ViewData["Title"] = "Checkout";
+    var books = ViewBag.Books as List<OnlineBookStore.Models.Book> ?? new();
+    string CoverClass(int id) => $"book-cover-{(id % 8) + 1}";
+    decimal grandTotal = 0;
+    foreach (var item in Model)
+    {
+        var b = books.FirstOrDefault(x => x.Id == item.BookId);
+        if (b != null) grandTotal += b.Price * item.Quantity;
+    }
+}
+
+<div class="container py-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <div class="text-center mb-4">
+                <div class="section-divider mx-auto"></div>
+                <h1 class="section-title mb-1">
+                    <i class="bi bi-bag-check me-2"></i>Order Summary
+                </h1>
+                <p class="section-subtitle">Review your items before placing the order</p>
+            </div>
+
+            @* Order Items *@
+            <div class="card border-0 shadow mb-4" style="border-radius:16px;overflow:hidden">
+                <div class="card-header py-3 px-4"
+                     style="background:var(--blue);color:white;font-weight:700;font-size:0.95rem">
+                    <i class="bi bi-list-ul me-2"></i>Items in This Order
+                </div>
+                <div class="card-body p-0">
+                    @foreach (var item in Model)
+                    {
+                        var book = books.FirstOrDefault(b => b.Id == item.BookId);
+                        if (book == null) continue;
+                        var lineTotal = book.Price * item.Quantity;
+
+                        <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom">
+                            <div class="book-cover @CoverClass(book.Id)"
+                                 style="width:55px;height:72px;border-radius:8px;font-size:1.7rem;flex-shrink:0">
+                                📖
+                            </div>
+                            <div class="flex-fill">
+                                <div class="fw-bold" style="color:var(--blue);font-size:0.95rem">
+                                    @book.Title
+                                </div>
+                                <div class="text-muted small">by @book.Author</div>
+                                <div class="small" style="color:var(--gold-dark)">
+                                    $@book.Price.ToString("0.00") × @item.Quantity
+                                </div>
+                            </div>
+                            <div class="fw-bold fs-5" style="color:var(--blue);flex-shrink:0">
+                                $@lineTotal.ToString("0.00")
+                            </div>
+                        </div>
+                    }
+
+                    @* Grand Total Row *@
+                    <div class="d-flex justify-content-between align-items-center px-4 py-3"
+                         style="background:var(--cream-2)">
+                        <span class="fw-bold fs-5" style="color:var(--blue)">Grand Total</span>
+                        <span class="fw-bold fs-3" style="color:var(--blue)">
+                            $@grandTotal.ToString("0.00")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @* Confirm + back buttons *@
+            <form method="post" asp-controller="Cart" asp-action="PlaceOrder">
+                <div class="d-flex gap-3 flex-wrap">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 flex-fill">
+                        <i class="bi bi-bag-heart me-2"></i>Confirm Order
+                    </button>
+                    <a asp-controller="Cart" asp-action="Index"
+                       class="btn btn-outline-blue btn-lg px-4">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Cart
+                    </a>
+                </div>
+                <div class="text-center mt-3 text-muted" style="font-size:0.82rem">
+                    <i class="bi bi-shield-check text-success me-1"></i>
+                    By placing this order you agree to our terms of purchase.
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
