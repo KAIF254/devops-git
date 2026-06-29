@@ -1,11 +1,10 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Test Docker') {
-            steps {
-                sh 'docker version'
-            }
-        }
+   stage('Test') {
+    steps {
+        sh 'whoami'
+        sh 'ls -l /var/run/docker.sock'
+        sh 'docker version'
     }
 }
