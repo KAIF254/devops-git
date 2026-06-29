@@ -10,7 +10,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t kaif4u/onlinebookstore:latest .'
+              sh 'docker build -t kaif4u/onlinebookstore:latest .'
             }
         }
     }
