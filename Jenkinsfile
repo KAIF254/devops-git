@@ -9,12 +9,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/KAIF254/devops-git.git'
-            }
-        }
-
         stage('Debug Workspace') {
             steps {
                 sh 'pwd'
