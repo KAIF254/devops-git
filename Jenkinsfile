@@ -9,13 +9,6 @@ pipeline {
 
     stages {
 
-        stage('Debug Workspace') {
-            steps {
-                sh 'pwd'
-                sh 'ls -la'
-            }
-        }
-
         stage('Check Docker') {
             steps {
                 sh 'docker version'
@@ -25,15 +18,15 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $IMAGE_NAME:latest ."
+                sh "docker build -t ${IMAGE_NAME}:latest ."
             }
         }
 
         stage('Stop Old Container') {
             steps {
                 sh """
-                    docker stop $CONTAINER_NAME || true
-                    docker rm $CONTAINER_NAME || true
+                docker stop ${CONTAINER_NAME} || true
+                docker rm ${CONTAINER_NAME} || true
                 """
             }
         }
@@ -41,10 +34,10 @@ pipeline {
         stage('Run New Container') {
             steps {
                 sh """
-                    docker run -d \
-                    --name $CONTAINER_NAME \
-                    -p $PORT:8080 \
-                    $IMAGE_NAME:latest
+                docker run -d \
+                --name ${CONTAINER_NAME} \
+                -p ${PORT}:8080 \
+                ${IMAGE_NAME}:latest
                 """
             }
         }
@@ -59,10 +52,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ PIPELINE SUCCESS - Application Deployed"
+            echo '✅ Application deployed successfully.'
         }
         failure {
-            echo "❌ PIPELINE FAILED - Check logs"
+            echo '❌ Pipeline failed.'
         }
     }
 }
